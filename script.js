@@ -128,6 +128,9 @@ var updateChart = function(data,clicked,plotLand,h,yscale)
     var students =
         plotLand.selectAll('rect')
         .data(data[dd].grades)
+        .transition()
+        .duration(1000)
+        .ease(d3.easeLinear)
         .attr('y', function(d)
         {
         return  yscale(d.grade)+10;
@@ -149,6 +152,9 @@ var updateChart = function(data,clicked,plotLand,h,yscale)
     var students =
         plotLand.selectAll('rect')
         .data(data[dd].grades)
+        .transition()
+        .duration(1000)
+        .ease(d3.easeLinear)
         .attr('y', function(d)
         {
         return  yscale(d.grade)+10;
