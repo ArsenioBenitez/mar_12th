@@ -13,15 +13,13 @@ var drawChart = function(data)
     width: 500,
     height: 400
   }
-  var svg = d3.select('svg')
-              .attr('width',screen.width)
-              .attr('height',screen.height)
+
   var margins =
   {
     top:10,
-    bottom:10,
-    left:10,
-    right:10
+    bottom:40,
+    left:40,
+    right:100
   }
   var width = screen.width-margins.left-margins.right;
   var height = screen.height-margins.top-margins.bottom;
@@ -32,30 +30,68 @@ var drawChart = function(data)
   var yscale = d3.scaleLinear()
                 .domain([0,100])
                 .range([height,0]);
-  var colors = d3.scaleOrdinal(d3.schemeAccent);
+  var svg = d3.select('svg#s')
+            .attr('width',screen.width)
+            .attr('height',screen.height);
+
   var plotLand = svg.append('g')
-                    .classed('plot',true)
-                    .attr("transform","translate("+margins.left+","+margins.top+")");
+                .classed("plot",true)
+                .attr("transform","translate("+margins.left+","+margins.top+")");
+
+
+  var colors = d3.scaleOrdinal(d3.schemeAccent);
   var students =
       plotLand.selectAll('rect')
       .data(data[0].grades)
       .enter()
       .append('rect')
+      .attr('fill',function(d)
+      {
+        return colors(d.name);
+      })
       .attr('x',function(d,i)
-    {
-      return i*barWidth;
-    })
+      {
+      return xscale(i);
+      })
       .attr('y',function(d)
-    {
-      return height-margins.bottom;
-    })
-    .attr('width',barWidth)
-    .attr('height', 10)
+      {
+      return height-yscale(0);
+      })
+      .attr('width',barWidth)
+      .attr('height', function(d)
+      {
+        return height-d.grade;
+      })
+      .on('mouseover',function(d)
+      {
+        d3.select(this)
+          .attr('fill','gray');
+      })
+      .on('mouseout',function(d)
+      {
+        d3.select(this)
+          .attr('fill',function(d)
+          {
+            return colors(d.name);
+          });
+      })
+      .append('title')
+      .text(function(d)
+      {
+        return d.name;
+      })
+      .attr('x',function(d,i)
+      {
+        return i*barWidth;
+      })
+      .attr('y',function(d,i)
+      {
+        return height-d.grade;
+      })
 
 
   // buttons
   var body = d3.select('body');
-  var dayCounter = 0;
   var buttons =
       d3.selectAll('button')
        .on('click',function()
@@ -69,9 +105,13 @@ var drawChart = function(data)
           {
             var clicked = 'next';
           }
-          console.log(data);
            updateChart(data,clicked,plotLand,height);
         });
+
+  var yAxis = d3.axisLeft(yscale);
+  svg.append('g').classed('yAxis',true)
+    .call(yAxis)
+    .attr('transform','translate('+30+','+49+')')
 }
 
 
@@ -87,13 +127,12 @@ var updateChart = function(data,clicked,plotLand,h)
     var students =
         plotLand.selectAll('rect')
         .data(data[dd].grades)
-        .attr('height', function(d)
-      {
-        return h - d.grade;
-      })
+        .attr('y', function(d)
+        {
+        return  h-d.grade;
+        })
       var p = document.getElementById('day');
       p.innerText = dd+1;
-
 
   }
   else if(clicked=='next')
@@ -104,10 +143,10 @@ var updateChart = function(data,clicked,plotLand,h)
     var students =
         plotLand.selectAll('rect')
         .data(data[dd].grades)
-        .attr('height', function(d)
-      {
-        return  h - d.grade;
-      })
+        .attr('y', function(d)
+        {
+        return  h-d.grade;
+        })
     var p = document.getElementById('day');
     p.innerText = dd;
 
