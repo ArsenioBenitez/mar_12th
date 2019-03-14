@@ -55,17 +55,18 @@ var drawChart = function(data)
       })
       .attr('y',function(d)
       {
-      return height-yscale(0);
+        return yscale(d.grade)+margins.top;
       })
       .attr('width',barWidth)
       .attr('height', function(d)
       {
-        return height-d.grade;
+        return height-yscale(d.grade);
       })
       .on('mouseover',function(d)
       {
         d3.select(this)
-          .attr('fill','gray');
+          .attr('fill','red');
+
       })
       .on('mouseout',function(d)
       {
@@ -105,17 +106,17 @@ var drawChart = function(data)
           {
             var clicked = 'next';
           }
-           updateChart(data,clicked,plotLand,height);
+           updateChart(data,clicked,plotLand,height,yscale);
         });
 
   var yAxis = d3.axisLeft(yscale);
   svg.append('g').classed('yAxis',true)
     .call(yAxis)
-    .attr('transform','translate('+30+','+49+')')
+    .attr('transform','translate('+30+','+20+')')
 }
 
 
-var updateChart = function(data,clicked,plotLand,h)
+var updateChart = function(data,clicked,plotLand,h,yscale)
 {
 
   var day = document.getElementById("day").textContent;
@@ -129,8 +130,13 @@ var updateChart = function(data,clicked,plotLand,h)
         .data(data[dd].grades)
         .attr('y', function(d)
         {
-        return  h-d.grade;
+        return  yscale(d.grade)+10;
         })
+        .attr('height',function(d)
+        {
+          return h-yscale(d.grade);
+        })
+
       var p = document.getElementById('day');
       p.innerText = dd+1;
 
@@ -138,15 +144,20 @@ var updateChart = function(data,clicked,plotLand,h)
   else if(clicked=='next')
   {
     //
-    console.log(parseInt(day));
-    var dd = parseInt(day)+1;
+
+    var dd = parseInt(day);
     var students =
         plotLand.selectAll('rect')
         .data(data[dd].grades)
         .attr('y', function(d)
         {
-        return  h-d.grade;
+        return  yscale(d.grade)+10;
         })
+        .attr('height',function(d)
+        {
+          return h-yscale(d.grade);
+        })
+    dd += 1;
     var p = document.getElementById('day');
     p.innerText = dd;
 
